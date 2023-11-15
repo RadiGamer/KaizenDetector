@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AprilTag App</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>AprilTag App</h1>
+    <img id="video_feed" width="640" height="480" />
+    <div id="data_display">
+        <h2>Data:</h2>
+        <p id="apriltag">AprilTag: </p>
+        <p id="nombre">Nombre: </p>
+        <p id="texto_prueba">Texto de Prueba: </p>
+    </div>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('video_frame', function (frame) {
+            document.getElementById('video_feed').src = 'data:image/jpg;base64,' + frame;
+        });
+
+        // Función para actualizar los datos en la interfaz
+        function updateData(data) {
+            document.getElementById('apriltag').innerText = 'AprilTag: ' + data.apriltag;
+            document.getElementById('nombre').innerText = 'Nombre: ' + data.nombre;
+            document.getElementById('texto_prueba').innerText = 'Texto de Prueba: ' + data.texto_prueba;
+        }
+
+        // Obtener datos al hacer clic en la imagen
+        document.getElementById('video_feed').addEventListener('click', function() {
+            var apriltag = prompt('Ingrese el número de AprilTag:');
+            if (apriltag !== null) {
+                fetch('/obtener/' + apriltag)
+                    .then(response => response.json())
+                    .then(data => updateData(data));
+            }
+        });
+    </script>
+</body>
+</html>
